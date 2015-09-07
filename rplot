@@ -1,0 +1,36 @@
+#!/bin/bash
+# Make ggplot2 plots easily from the command line
+#
+# Copyright Carlos Scheidegger, 2015
+# License: MIT or GPL2, at your choice.
+#
+# Requirements:
+#
+# - iterm2 2.9 or later (as of this writing, this means using a beta)
+#   - http://www.iterm2.com/downloads.html
+#
+# - imgcat somewhere in your $PATH
+#   - https://raw.github.com/gnachman/iTerm2/master/tests/imgcat
+#
+# - littler somewhere in your $PATH
+#   - http://dirk.eddelbuettel.com/code/littler.html
+#   - *Pay attention to the case-insensitive issues with OS X!*
+#   - This script assumes you installed littler as "lr". Change it accordingly
+#     if that's not the case
+#
+# Example:
+#   $ rplot 'ggplot(mtcars, aes(x=cyl, y=mpg)) + geom_jitter()'
+################################################################################
+
+FOUT=`mktemp -t XXXXXX.png`
+lr 2>/dev/null << EOF
+library(ggplot2);
+library(magrittr);
+library(dplyr);
+
+($*) %>% ggsave("$FOUT", ., device=function(...) grDevices::png(..., res=72, units = "in"), width=7, height=7)
+
+EOF
+imgcat $FOUT
+rm $FOUT
+
